@@ -25,6 +25,8 @@ public class Popover: Identifiable, Hashable, ObservableObject {
         public var cornerRadius: CGFloat = 8.0
         public var shadowRadius: CGFloat = 50
         public var shadowColor: Color = Color(.sRGBLinear, white: 0, opacity: 0.33)
+        public var tapDismiss = true
+        public var bgOpacity: Double = 0.2
         
         var scaleAnchor: UnitPoint = .center
         var transition: AnyTransition?
@@ -163,8 +165,8 @@ extension Popover {
     /**
      Present a popover in a window. It may be easier to use the `UIViewController.present(_:)` convenience method instead.
      */
-    @MainActor func present(in window: UIWindow, bgOpacity: Double = 0.3) {
-        PopoverHolder.shared.present(in: window, popover: self, bgOpacity: bgOpacity)
+    @MainActor func present(in window: UIWindow) {
+        PopoverHolder.shared.present(in: window, popover: self)
     }
     
     /**

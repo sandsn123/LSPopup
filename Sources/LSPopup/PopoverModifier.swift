@@ -10,17 +10,15 @@ import SwiftUI
 struct PopoverModifier: ViewModifier {
     var isPresented: Binding<Bool>
     @State private var sourceFrame: CGRect = .zero
-    @State private var popoverSize: CGSize = .zero
+
     let buildAttributes: (inout Popover.Attributes) -> Void
-    var bgOpacity: Double
     var view: () -> any View
     @State private var popover: Popover?
     private let windowViewModel = WindowViewModel()
-    init(isPresented: Binding<Bool>, bgOpacity: CGFloat, attributes buildAttributes: @escaping ((inout Popover.Attributes) -> Void) = { _ in }, @ViewBuilder view: @escaping () -> any View) {
+    init(isPresented: Binding<Bool>, attributes buildAttributes: @escaping ((inout Popover.Attributes) -> Void) = { _ in }, @ViewBuilder view: @escaping () -> any View) {
         self.isPresented = isPresented
         self.buildAttributes = buildAttributes
         self.view = view
-        self.bgOpacity = bgOpacity
     }
     
     func body(content: Content) -> some View {
@@ -48,7 +46,7 @@ struct PopoverModifier: ViewModifier {
                             self.popover = nil
                             self.isPresented.wrappedValue = false
                         }
-                        popover.present(in: window, bgOpacity: bgOpacity)
+                        popover.present(in: window)
                         self.popover = popover
                     } else {
                         guard let popover = popover else {
@@ -95,11 +93,11 @@ class PopoverHolder {
     
     private var windowModels: [WeakWindow : Container] = [:]
     
-    @MainActor func present(in window: UIWindow, popover: Popover, bgOpacity: Double = 0.3) {
+    @MainActor func present(in window: UIWindow, popover: Popover) {
         if let viewModel = existingPopoverModel(for: window)?.viewModel {
             viewModel.present(with: popover)
         } else {
-            let viewModel = PopoverContainer.ViewModel(bgOpacity: bgOpacity)
+            let viewModel = PopoverContainer.ViewModel()
 
             let swiftuiView = PopoverContainer().environmentObject(viewModel).environment(\.window, window)
             

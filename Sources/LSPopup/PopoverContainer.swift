@@ -92,9 +92,8 @@ extension PopoverContainer {
         @Published private(set) var popovers: [Popover] = []
         @Published var opacity = 0.3
         
-        private(set) var bgOpacity: Double
-        init(bgOpacity: Double) {
-            self.bgOpacity = bgOpacity
+        var bgOpacity: Double {
+            popovers.last?.attributes.bgOpacity ?? 0.2
         }
         
         func present(with popover: Popover) {
@@ -102,8 +101,10 @@ extension PopoverContainer {
         }
         
         func dismiss(with popover: Popover) {
+            guard popover.attributes.tapDismiss else {
+                return
+            }
             withAnimation(.easeInOut) {
-                
                 popover.dismiss()
                 if popovers.count == 1 {
                     opacity = 0

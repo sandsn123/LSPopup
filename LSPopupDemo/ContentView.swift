@@ -19,24 +19,28 @@ struct ContentView: View {
                 .onTapGesture {
                     isPresent.toggle()
                 }
-                .lspopup(isPresent: $isPresent, bgOpacity: 0.2, attributes: {
+                .lspopup(isPresent: $isPresent, attributes: {
                     $0.cornerRadius = 10.0
                     $0.anchor = .absolute(originAnchor: .topRight, popoverAnchor: .topLeft)
                     $0.padding = EdgeInsets(top: 0, leading: 20, bottom: 0, trailing: 0)
+                    $0.bgOpacity = 0
+//                    $0.tapDismiss = false
                 }) {
                     Rectangle().fill(.blue).frame(width: 300, height: 300)
                         .onTapGesture {
                             subPresent.toggle()
                         }
-                        .lspopup(isPresent: $subPresent, bgOpacity: 0.2, attributes: {
+                        .lspopup(isPresent: $subPresent, attributes: {
                             $0.cornerRadius = 10.0
-                            $0.anchor = .absolute(originAnchor: .topRight, popoverAnchor: .topLeft)
-                            $0.padding = EdgeInsets(top: 0, leading: 20, bottom: 0, trailing: 0)
+                            $0.anchor = .absolute(originAnchor: .bottomRight, popoverAnchor: .topLeft)
+                            $0.padding = EdgeInsets(top: -20, leading: -20, bottom: 0, trailing: 0)
+                            $0.bgOpacity = 0.3
+//                            $0.tapDismiss = true
                         }) {
                             Rectangle().fill(.purple).frame(width: 300, height: 300)
                         }
                 }
-                .position(x: 300, y: 300)
+                .position(x: 200, y: 200)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.gray)
