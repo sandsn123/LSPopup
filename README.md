@@ -1,6 +1,5 @@
 # LSPopup
-
-SwiftUI自定义弹窗，可支持多层效果
+Custom Popup in SwiftUI, can support multi-level effects and multiple custom parameter configurations.
 
 ## Requirements
 - Xcode 12.x
@@ -18,12 +17,15 @@ SwiftUI自定义弹窗，可支持多层效果
 
 ```swift
 // <dependent swiftui view>
-.lspopup(isPresent: $isPresent, bgOpacity: 0.2, attributes: {
+.lspopup(isPresent: $isPresent, attributes: {
         $0.cornerRadius = 10.0
         $0.anchor = .absolute(originAnchor: .topRight, popoverAnchor: .topLeft)
         $0.padding = EdgeInsets(top: 0, leading: 20, bottom: 0, trailing: 0)
-        // ....
-})
+        $0.bgOpacity = 0
+//      $0.tapDismiss = false
+}) {
+    Rectangle().fill(.blue).frame(width: 300, height: 300)
+}
 ```
 
 ## Example
