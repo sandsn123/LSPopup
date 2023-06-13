@@ -19,14 +19,6 @@ struct DeviceRotationViewModifier: ViewModifier {
     }
 }
 
-// A View wrapper to make the modifier easier to use
-public extension View {
-    func onRotate(perform action: @escaping (UIDeviceOrientation) -> Void) -> some View {
-        self.modifier(DeviceRotationViewModifier(action: action))
-    }
-}
-
-
 
 struct PopoverContainer: View {
     
@@ -58,6 +50,7 @@ struct PopoverContainer: View {
             }
         }
         .opacity(viewModel.opacity)
+        .animation(.easeInOut, value: viewModel.opacity)
         .onAppear {
             withAnimation(.easeInOut) {
                 viewModel.opacity = 1.0
@@ -79,12 +72,30 @@ struct PopoverView: View {
                 .padding(popover.attributes.padding)
                 .alignmentGuide(.leading) { -popover.alignmentOffset($0).width }
                 .alignmentGuide(.top) { -popover.alignmentOffset($0).height }
-                .scaleEffect(popover.readyShow ? 1 : 0.1, anchor: popover.attributes.scaleAnchor)
-                .opacity(popover.readyShow ? 1 : 0)
-                .animation(.easeInOut, value: popover.readyShow)
+                .withTransition(popover)
+        }
+    }
+    
+}
+
+// A View wrapper to make the modifier easier to use
+private extension View {
+    func eraseToAnyView() -> AnyView {
+        return AnyView(erasing: self)
+    }
+    
+    func withTransition(_ popover: Popover) -> AnyView {
+        switch popover.attributes.transition {
+        case .slide(let x, let y):
+            return offset(x: popover.readyShow ? 0 : x, y: popover.readyShow ? 0 : y).animation(.linear, value: popover.readyShow).eraseToAnyView()
+        case .scale:
+            return scaleEffect(popover.readyShow ? 1 : 0.1, anchor: popover.attributes.scaleAnchor).animation(.spring(), value: popover.readyShow).eraseToAnyView()
+        case .opacity:
+            return opacity(popover.readyShow ? 1.0 : 0).animation(.easeInOut, value: popover.readyShow).eraseToAnyView()
         }
     }
 }
+
 
 extension PopoverContainer {
     @MainActor final class ViewModel: ObservableObject {

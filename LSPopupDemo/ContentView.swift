@@ -24,6 +24,7 @@ struct ContentView: View {
                     $0.anchor = .absolute(originAnchor: .topRight, popoverAnchor: .topLeft)
                     $0.padding = EdgeInsets(top: 0, leading: 20, bottom: 0, trailing: 0)
                     $0.bgOpacity = 0
+                    $0.transition = .slide(x: -200)
 //                    $0.tapDismiss = false
                 }) {
                     Rectangle().fill(.blue).frame(width: 300, height: 300)
@@ -38,6 +39,7 @@ struct ContentView: View {
 //                            $0.tapDismiss = true
                         }) {
                             Rectangle().fill(.purple).frame(width: 300, height: 300)
+                                .onTapGesture {}
                         }
                 }
                 .position(x: 200, y: 200)

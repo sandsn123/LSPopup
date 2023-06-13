@@ -27,9 +27,11 @@ public class Popover: Identifiable, Hashable, ObservableObject {
         public var shadowColor: Color = Color(.sRGBLinear, white: 0, opacity: 0.33)
         public var tapDismiss = true
         public var bgOpacity: Double = 0.2
+        public var transition: Transition = .scale
         
+        // the anchor for scale transition
         var scaleAnchor: UnitPoint = .center
-        var transition: AnyTransition?
+        
     
         public init(sourceFrame: CGRect = .zero, anchor: Position = .absolute(originAnchor: .center, popoverAnchor: .center), padding: EdgeInsets = .init()) {
             self.sourceFrame = sourceFrame

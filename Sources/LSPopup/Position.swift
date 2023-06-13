@@ -50,4 +50,9 @@ extension Popover.Attributes {
         }
     }
     
+    public enum Transition {
+        case slide(x: CGFloat, y: CGFloat = 0)
+        case scale
+        case opacity
+    }
 }
