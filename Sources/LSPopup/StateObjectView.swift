@@ -42,8 +42,13 @@ private struct StateObjectView14<ViewModel: ObservableObject, Content: View>: Vi
 }
 
 private struct StateObjectView13<ViewModel: ObservableObject, Content: View>: View {
-    @ObservedObject var viewModel : ViewModel
+    @State var viewModel : ViewModel
     let content: () -> Content
+    
+    init(viewModel: @autoclosure () -> ViewModel, content: @escaping () -> Content) {
+        self._viewModel = State(initialValue: viewModel())
+        self.content = content
+    }
 
     var body: some View {
         content()

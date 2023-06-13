@@ -26,65 +26,55 @@ extension EnvironmentValues {
 }
 
 
-public struct WindowReader<Content: View>: View {
+struct WindowReader: UIViewRepresentable {
+    @Binding var window: UIWindow?
 
-    /// Your SwiftUI view.
-    public let view: (UIWindow?) -> Content
+  @MainActor
+  final class View: UIView {
+    var didMoveToWindowHandler: ((UIWindow?) -> Void)
 
-    /// The read window.
-    @EnvironmentObject var windowViewModel: WindowViewModel
-    
-    /// Reads the `UIWindow` that hosts some SwiftUI content.
-    public init(@ViewBuilder view: @escaping (UIWindow?) -> Content) {
-        self.view = view
+    init(didMoveToWindowHandler: (@escaping (UIWindow?) -> Void)) {
+      self.didMoveToWindowHandler = didMoveToWindowHandler
+      super.init(frame: .null)
+      backgroundColor = .clear
+      isUserInteractionEnabled = false
     }
 
-    public var body: some View {
-        view(windowViewModel.window)
-            .background(
-                WindowHandlerRepresentable().environmentObject(windowViewModel)
-            )
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
+      fatalError("init(coder:) has not been implemented")
     }
 
-    /// A wrapper view to read the parent window.
-    private struct WindowHandlerRepresentable: UIViewRepresentable {
-        @EnvironmentObject var windowViewModel: WindowViewModel
-
-        func makeUIView(context _: Context) -> WindowHandler {
-            return WindowHandler(windowViewModel: self.windowViewModel)
-        }
-
-        func updateUIView(_: WindowHandler, context _: Context) {}
+    override func didMoveToWindow() {
+      super.didMoveToWindow()
+      didMoveToWindowHandler(window)
     }
+  }
 
-    private class WindowHandler: UIView {
-        var windowViewModel: WindowViewModel
+  func makeUIView(context: Context) -> View {
+      .init { window = $0 }
+  }
 
-        init(windowViewModel: WindowViewModel) {
-            self.windowViewModel = windowViewModel
-            super.init(frame: .zero)
-            backgroundColor = .clear
-        }
-
-        @available(*, unavailable)
-        required init?(coder _: NSCoder) {
-            fatalError("[Popovers] - Create this view programmatically.")
-        }
-
-        override func didMoveToWindow() {
-            super.didMoveToWindow()
-
-            DispatchQueue.main.async {
-                /// Set the window.
-                self.windowViewModel.window = self.window
-            }
-        }
-    }
+  func updateUIView(_ uiView: View, context: Context) {
+      uiView.didMoveToWindowHandler = { window = $0 }
+  }
 }
 
-class WindowViewModel: ObservableObject {
-    @Published var window: UIWindow?
+extension View {
+    @ViewBuilder
+  func onWindowChange(_ window: Binding<UIWindow?>) -> some View {
+      if #available(iOS 15.0, *) {
+        background {
+              WindowReader(window: window)
+          }
+      } else {
+        background(
+            WindowReader(window: window)
+         )
+      }
+  }
 }
+
 
 // -----------  frame size --------------
 

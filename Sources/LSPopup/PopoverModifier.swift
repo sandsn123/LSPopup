@@ -14,7 +14,7 @@ struct PopoverModifier: ViewModifier {
     let buildAttributes: (inout Popover.Attributes) -> Void
     var view: () -> any View
     @State private var popover: Popover?
-    private let windowViewModel = WindowViewModel()
+    @State var window: UIWindow? = nil
     init(isPresented: Binding<Bool>, attributes buildAttributes: @escaping ((inout Popover.Attributes) -> Void) = { _ in }, @ViewBuilder view: @escaping () -> any View) {
         self.isPresented = isPresented
         self.buildAttributes = buildAttributes
@@ -22,41 +22,39 @@ struct PopoverModifier: ViewModifier {
     }
     
     func body(content: Content) -> some View {
-        WindowReader { window in
-            content
-                .frameReader(for: $sourceFrame)
-                .onValueChange(of: isPresented.wrappedValue, { newValue in
-                    guard let window = window else {
-                        return
+        content
+            .onWindowChange($window)
+            .frameReader(for: $sourceFrame)
+            .onValueChange(of: isPresented.wrappedValue, { newValue in
+                guard let window = window else {
+                    return
+                }
+                
+                if isPresented.wrappedValue {
+                    var attributes = Popover.Attributes()
+                    
+                    if case .absolute = attributes.anchor {
+                        attributes.sourceFrame = sourceFrame
+                    } else {
+                        attributes.sourceFrame = window.safeAreaLayoutGuide.layoutFrame
                     }
                     
-                    if isPresented.wrappedValue {
-                        var attributes = Popover.Attributes()
-                        
-                        if case .absolute = attributes.anchor {
-                            attributes.sourceFrame = sourceFrame
-                        } else {
-                            attributes.sourceFrame = window.safeAreaLayoutGuide.layoutFrame
-                        }
-                        
-                        buildAttributes(&attributes)
+                    buildAttributes(&attributes)
 
-                        let popover = Popover(attributes: attributes, view: view)
-                        popover.dismissAction = {
-                            self.popover = nil
-                            self.isPresented.wrappedValue = false
-                        }
-                        popover.present(in: window)
-                        self.popover = popover
-                    } else {
-                        guard let popover = popover else {
-                            return
-                        }
-                        popover.dismiss(in: window)
+                    let popover = Popover(attributes: attributes, view: view)
+                    popover.dismissAction = {
+                        self.popover = nil
+                        self.isPresented.wrappedValue = false
                     }
-                })
-        }
-        .environmentObject(windowViewModel)
+                    popover.present(in: window)
+                    self.popover = popover
+                } else {
+                    guard let popover = popover else {
+                        return
+                    }
+                    popover.dismiss(in: window)
+                }
+            })
     }
 }
 
