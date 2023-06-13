@@ -7,19 +7,6 @@
 
 import SwiftUI
 
-struct DeviceRotationViewModifier: ViewModifier {
-    let action: (UIDeviceOrientation) -> Void
-
-    func body(content: Content) -> some View {
-        content
-            .onAppear()
-            .onReceive(NotificationCenter.default.publisher(for: UIDevice.orientationDidChangeNotification)) { _ in
-                action(UIDevice.current.orientation)
-            }
-    }
-}
-
-
 struct PopoverContainer: View {
     
     @EnvironmentObject var viewModel: ViewModel
@@ -73,6 +60,7 @@ struct PopoverView: View {
                 .alignmentGuide(.leading) { -popover.alignmentOffset($0).width }
                 .alignmentGuide(.top) { -popover.alignmentOffset($0).height }
                 .withTransition(popover)
+                .eraseToAnyView()
         }
     }
     
@@ -84,15 +72,19 @@ private extension View {
         return AnyView(erasing: self)
     }
     
-    func withTransition(_ popover: Popover) -> AnyView {
-        switch popover.attributes.transition {
+    func buildView(_ transition: Popover.Attributes.Transition, popover: Popover) -> any View {
+        switch transition {
         case .slide(let x, let y):
-            return offset(x: popover.readyShow ? 0 : x, y: popover.readyShow ? 0 : y).animation(.linear, value: popover.readyShow).eraseToAnyView()
+            return offset(x: popover.readyShow ? 0 : x, y: popover.readyShow ? 0 : y).animation(.linear, value: popover.readyShow)
         case .scale:
-            return scaleEffect(popover.readyShow ? 1 : 0.1, anchor: popover.attributes.scaleAnchor).animation(.spring(), value: popover.readyShow).eraseToAnyView()
+            return scaleEffect(popover.readyShow ? 1 : 0.1, anchor: popover.attributes.scaleAnchor).animation(.spring(), value: popover.readyShow)
         case .opacity:
-            return opacity(popover.readyShow ? 1.0 : 0).animation(.easeInOut, value: popover.readyShow).eraseToAnyView()
+            return opacity(popover.readyShow ? 1.0 : 0).animation(.easeInOut, value: popover.readyShow)
         }
+    }
+    
+    func withTransition(_ popover: Popover) -> any View {
+        popover.attributes.transitions.reduce(self, { $0.buildView($1, popover: popover) })
     }
 }
 
