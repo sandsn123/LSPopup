@@ -13,12 +13,19 @@ struct PopoverModifier: ViewModifier {
 
     let buildAttributes: (inout Popover.Attributes) -> Void
     var view: () -> any View
+    
+    var dismissAction: (() -> Void)?
+    
     @State private var popover: Popover?
     @State var window: UIWindow? = nil
-    init(isPresented: Binding<Bool>, attributes buildAttributes: @escaping ((inout Popover.Attributes) -> Void) = { _ in }, @ViewBuilder view: @escaping () -> any View) {
+    init(isPresented: Binding<Bool>, dismissAction: (() -> Void)? = nil,
+         attributes buildAttributes: @escaping ((inout Popover.Attributes) -> Void) = { _ in },
+         @ViewBuilder view: @escaping () -> any View) {
+        
         self.isPresented = isPresented
         self.buildAttributes = buildAttributes
         self.view = view
+        self.dismissAction = dismissAction
     }
     
     func body(content: Content) -> some View {
@@ -45,6 +52,7 @@ struct PopoverModifier: ViewModifier {
                     popover.dismissAction = {
                         self.popover = nil
                         self.isPresented.wrappedValue = false
+                        self.dismissAction?()
                     }
                     popover.present(in: window)
                     self.popover = popover

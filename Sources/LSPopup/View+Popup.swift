@@ -9,10 +9,11 @@ import SwiftUI
 
 public extension View {
     func lspopup(isPresent: Binding<Bool>,
+                 dismissAction: (() -> Void)? = nil,
                    attributes buildAttributes: @escaping ((inout Popover.Attributes) -> Void) = { _ in },
                    @ViewBuilder popover: @escaping () -> some View) -> some View {
         modifier(
-            PopoverModifier(isPresented: isPresent, attributes: buildAttributes, view: popover)
+            PopoverModifier(isPresented: isPresent, dismissAction: dismissAction, attributes: buildAttributes, view: popover)
         )
     }
 }
