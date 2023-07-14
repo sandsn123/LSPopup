@@ -25,7 +25,7 @@ public class Popover: Identifiable, Hashable, ObservableObject {
         public var cornerRadius: CGFloat = 8.0
         public var shadowRadius: CGFloat = 50
         public var shadowColor: Color = Color(.sRGBLinear, white: 0, opacity: 0.33)
-        public var tapDismiss = true
+        public var tapDismiss: () -> Bool
         public var bgOpacity: Double = 0.2
         public var transitions: [Transition] = [.scale, .opacity]
         
@@ -33,10 +33,11 @@ public class Popover: Identifiable, Hashable, ObservableObject {
         var scaleAnchor: UnitPoint = .center
         
     
-        public init(sourceFrame: CGRect = .zero, anchor: Position = .absolute(originAnchor: .center, popoverAnchor: .center), padding: EdgeInsets = .init()) {
+        public init(sourceFrame: CGRect = .zero, anchor: Position = .absolute(originAnchor: .center, popoverAnchor: .center), padding: EdgeInsets = .init(), tapDismiss: @escaping () -> Bool = { true }) {
             self.sourceFrame = sourceFrame
             self.anchor = anchor
             self.padding = padding
+            self.tapDismiss = tapDismiss
         }
     }
     

@@ -104,7 +104,7 @@ extension PopoverContainer {
         }
         
         func dismiss(with popover: Popover) {
-            guard popover.attributes.tapDismiss else {
+            guard popover.attributes.tapDismiss() else {
                 return
             }
             withAnimation(.easeInOut) {
