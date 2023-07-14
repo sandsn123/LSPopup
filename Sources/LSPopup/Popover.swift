@@ -17,7 +17,7 @@ public class Popover: Identifiable, Hashable, ObservableObject {
         hasher.combine(id)
     }
     
-    public struct Attributes {
+    public class Attributes {
         var sourceFrame: CGRect
         public var anchor: Position
 

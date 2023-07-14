@@ -8,41 +8,40 @@
 import SwiftUI
 import LSPopup
 
+
 struct ContentView: View {
     @State var isPresent = false
     @State var subPresent = false
+    
+    @State var isMuneing = false
 
     var body: some View {
-        
-        ZStack {
-            Rectangle().fill(.red).frame(width: 100, height: 100)
+        let attributes = Popover.Attributes(anchor: .absolute(originAnchor: .bottomRight, popoverAnchor: .topLeft), padding: EdgeInsets(top: -20, leading: -20, bottom: 0, trailing: 0)) {
+            isMuneing
+        }
+       return ZStack {
+            Rectangle().fill(.blue).frame(width: 300, height: 300)
                 .onTapGesture {
-                    isPresent.toggle()
+                    subPresent.toggle()
                 }
-                .lspopup(isPresent: $isPresent, attributes: {
-                    $0.cornerRadius = 10.0
-                    $0.anchor = .absolute(originAnchor: .topRight, popoverAnchor: .topLeft)
-                    $0.padding = EdgeInsets(top: 0, leading: 20, bottom: 0, trailing: 0)
-                    $0.bgOpacity = 0
-                    $0.transitions = [.scale, .opacity]
-//                    $0.tapDismiss = false
-                }) {
-                    Rectangle().fill(.blue).frame(width: 300, height: 300)
-                        .onTapGesture {
-                            subPresent.toggle()
+                .lspopup(isPresent: $subPresent, attributes: attributes) {
+                    Menu {
+                        VStack {
+                            Text("1111")
+                            Text("2222")
+                            Text("33333")
                         }
-                        .lspopup(isPresent: $subPresent, attributes: {
-                            $0.cornerRadius = 10.0
-                            $0.anchor = .absolute(originAnchor: .bottomRight, popoverAnchor: .topLeft)
-                            $0.padding = EdgeInsets(top: -20, leading: -20, bottom: 0, trailing: 0)
-                            $0.bgOpacity = 0.3
-//                            $0.tapDismiss = true
-                        }) {
-                            Rectangle().fill(.purple).frame(width: 300, height: 300)
-                                .onTapGesture {}
+                        .onAppear {
+                            isMuneing = true
                         }
+                        .onDisappear {
+                            isMuneing = false
+                        }
+                    } label: {
+                        Rectangle().frame(width: 100, height: 100)
+                    }
+
                 }
-                .position(x: 200, y: 200)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.gray)

@@ -11,7 +11,7 @@ struct PopoverModifier: ViewModifier {
     var isPresented: Binding<Bool>
     @State private var sourceFrame: CGRect = .zero
 
-    let buildAttributes: (inout Popover.Attributes) -> Void
+    let attributes: Popover.Attributes
     var view: () -> any View
     
     var dismissAction: (() -> Void)?
@@ -19,11 +19,11 @@ struct PopoverModifier: ViewModifier {
     @State private var popover: Popover?
     @State var window: UIWindow? = nil
     init(isPresented: Binding<Bool>, dismissAction: (() -> Void)? = nil,
-         attributes buildAttributes: @escaping ((inout Popover.Attributes) -> Void) = { _ in },
+         attributes: Popover.Attributes,
          @ViewBuilder view: @escaping () -> any View) {
         
         self.isPresented = isPresented
-        self.buildAttributes = buildAttributes
+        self.attributes = attributes
         self.view = view
         self.dismissAction = dismissAction
     }
@@ -38,15 +38,12 @@ struct PopoverModifier: ViewModifier {
                 }
                 
                 if isPresented.wrappedValue {
-                    var attributes = Popover.Attributes()
                     
                     if case .absolute = attributes.anchor {
                         attributes.sourceFrame = sourceFrame
                     } else {
                         attributes.sourceFrame = window.safeAreaLayoutGuide.layoutFrame
                     }
-                    
-                    buildAttributes(&attributes)
 
                     let popover = Popover(attributes: attributes, view: view)
                     popover.dismissAction = {
