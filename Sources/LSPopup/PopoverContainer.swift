@@ -14,7 +14,16 @@ struct PopoverContainer: View {
     
     var body: some View {
         ZStack(alignment: .topLeading) {
-
+            Color(white: 0, opacity: viewModel.bgOpacity)
+                .contentShape(Rectangle())
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+                .edgesIgnoringSafeArea(.all)
+                .onTapGesture {
+                    withAnimation {
+                        viewModel.pop()
+                    }
+                }
+            
             ForEach(viewModel.popovers) { popover in
                 PopoverView(popover: popover)
                     .onDisappear {
@@ -27,15 +36,6 @@ struct PopoverContainer: View {
             }
             .frame(alignment: .topLeading)
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-        .background(Color(white: 0, opacity: viewModel.bgOpacity))
-        .edgesIgnoringSafeArea(.all)
-        .contentShape(Rectangle())
-        .onTapGesture {
-            withAnimation {
-                viewModel.pop()
-            }
-        }
         .opacity(viewModel.opacity)
         .animation(.easeInOut, value: viewModel.opacity)
         .onAppear {
@@ -43,7 +43,6 @@ struct PopoverContainer: View {
                 viewModel.opacity = 1.0
             }
         }
-        
     }
 }
 
@@ -104,7 +103,7 @@ extension PopoverContainer {
         }
         
         func dismiss(with popover: Popover) {
-            guard popover.attributes.tapDismiss() else {
+            guard popover.attributes.tapDismiss else {
                 return
             }
             withAnimation(.easeInOut) {
